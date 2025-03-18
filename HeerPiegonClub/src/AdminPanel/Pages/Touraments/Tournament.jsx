@@ -80,22 +80,25 @@ const Tournament = () => {
                   />
                   {addPerson && (
                     <div className={s.popup}>
-                     <div className={s.personData}>
-                     <h1>Add Person</h1>
-                      
-                      <h3>Player Name</h3>
-                      <input type="text" />
-                    
-                      <h3>Player Address</h3>
-                      <input type="text" />
-                      <h3>Add Photo</h3>
+                      <div className={s.personData}>
+                        <h1>Add Person</h1>
 
-<input type="file" className={s.fileInput} />
-<button className={s.uploadButton} onClick={addingPerson}>
-  Upload Photo
-</button>
-                     </div>
-                      
+                        <h3>Player Name</h3>
+                        <input type="text" />
+
+                        <h3>Player Address</h3>
+                        <input type="text" />
+                        <h3>Add Photo</h3>
+
+                        <input type="file" className={s.fileInput} />
+                        <button
+                          className={s.uploadButton}
+                          onClick={addingPerson}
+                        >
+                          Upload Photo
+                        </button>
+                      </div>
+
                       <div className={s.button}>
                         <button className={s.cancelbtn} onClick={addingPerson}>
                           {" "}
