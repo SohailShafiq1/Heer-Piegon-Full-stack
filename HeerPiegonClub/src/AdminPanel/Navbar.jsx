@@ -58,7 +58,7 @@ const Navbar = () => {
   return (
     <div className={style.container}>
       <div className={style.logo}>
-      <NavLink  to="/admin">
+      <NavLink  to="/">
       <img src={logo} alt="Logo" />
         </NavLink>
         

@@ -58,7 +58,10 @@ const Navbar = () => {
   return (
     <div className={style.container}>
       <div className={style.logo}>
+        <NavLink to={"/"}>
         <img src={logo} alt="Logo" />
+
+        </NavLink>
       </div>
       <div className={style.navbar}>
         <NavLink className={style.buttons} to="/">
