@@ -4,6 +4,7 @@ const s = style;
 import axios from "axios";
 
 import img from "../../../../assets/p1.jpeg";
+import { useLocation } from "react-router-dom";
 
 const NameOfCup = () => {
   const dayData = [
@@ -52,6 +53,8 @@ const NameOfCup = () => {
   const [total, setTotal] = useState(false);
   const [selectedData, setSelectedData] = useState(dayData);
   const [news, setNews] = useState([]);
+  const location = useLocation();
+  const { owner, date, pigeon, flightTime } = location.state || {};
 
   useEffect(() => {
     fetchNews();

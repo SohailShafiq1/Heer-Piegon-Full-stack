@@ -40,3 +40,103 @@
     background-color: black;
     color: white;
   }
+
+  .popup
+{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 70%;
+    background-color: lightcoral;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 2rem;
+    box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+}
+.popup input
+{
+    width: 30%;
+    height: 1.5rem;
+    border: 1px solid black;
+}
+ .dates
+ {
+    display: flex;
+    justify-content: space-between;
+    width: 40%;
+ }
+ .dates input
+ {
+    width: 6rem;
+    color: #00B1FD;
+ }
+ .button
+{
+    display: flex;
+    justify-content: space-between;
+    width: 25%;
+    height: 2rem;
+    margin-top: 1rem;
+}
+.cancelbtn
+{
+    width: 5rem;
+    border-radius: 2px;
+    border: none;
+    background-color: #CED0D4;
+    cursor: pointer;
+
+}.addbtn
+{
+    width: 5rem;
+    border-radius: 2px;
+    border: none;
+    background-color: #00B1FD;
+    color: white;
+    cursor: pointer;
+}
+.personData
+{
+    width: 60%;
+    display: flex;
+    justify-content: start;
+    flex-direction: column;
+}
+.personData input
+{
+    width: 100%;
+}
+.fileInput {
+    width: 80%;
+    padding: 10px;
+    border: 2px solid #444;
+    border-radius: 5px;
+    background: #2c2c2c;
+    color: #ffffff;
+    cursor: pointer;
+    outline: none;
+  }
+  
+  .uploadButton {
+    width: 30%;
+    height: 2rem;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+    border-radius: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+    font-size: 1rem;
+  }
+  .select
+  {
+    width: 8rem;
+    height: 1.5rem;
+    border: 2px solid;
+  }
