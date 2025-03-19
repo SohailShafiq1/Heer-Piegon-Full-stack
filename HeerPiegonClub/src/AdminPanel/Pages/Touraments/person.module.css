@@ -1,0 +1,42 @@
+.container {
+    width: 100%;
+    height: auto;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+  }
+  
+
+ 
+  .table {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .tournamenttable {
+    width: 100%;
+    height: auto;
+  
+    background-color: #ced0d4;
+    font-size: 1.3rem;
+    border-collapse: separate;
+    border-radius: 2rem;
+    overflow: hidden;
+  }
+  
+  .tournamenttable th,
+  .tournamenttable td {
+    border: 1px solid white;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .tournamenttable th {
+    background-color: black;
+    color: white;
+  }

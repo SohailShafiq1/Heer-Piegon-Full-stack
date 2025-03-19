@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import style from "./news.module.css";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { FaMinusCircle } from "react-icons/fa";
@@ -8,12 +8,17 @@ const News = () => {
   const openAdd = () => {
     addNews(!add);
   };
-  const data = [
+  const [data,setData] = useState([
     { name: "News" },
     { name: "News 02" },
     { name: "Rawalpindi" },
     { name: "Multan" },
-  ];
+  ]);
+  const removeItem = (index)=>
+    {
+    const updatedData = data.filter((_,i) =>i!==index)
+    setData(updatedData )
+    }
   return (
     <div className={s.container}>
       <div className={s.top}>
@@ -48,7 +53,7 @@ const News = () => {
                 <td>{tournament.name}</td>
 
                 <td>
-                  <FaMinusCircle className={s.remove} />
+                  <FaMinusCircle className={s.remove} onClick={()=>{removeItem(index)}} />
                 </td>
               </tr>
             ))}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import style from "./post.module.css";
 import { BiEdit } from "react-icons/bi";
 import { IoAddCircleOutline } from "react-icons/io5";
@@ -9,12 +9,17 @@ const Post = () => {
   const openAdd = () => {
     addPost(!add);
   };
-  const data = [
+  const [data,setData] = useState([
     { name: "Lahore" },
     { name: "Faisalabad" },
     { name: "Rawalpindi" },
     { name: "Multan" },
-  ];
+  ]);
+  const removeItem = (index)=>
+    {
+    const updatedData = data.filter((_,i) =>i!==index)
+    setData(updatedData )
+    }
   return (
     <div className={s.container}>
       <div className={s.top}>
@@ -54,7 +59,7 @@ const Post = () => {
                   <BiEdit className={s.edit} />
                 </td>
                 <td>
-                  <FaMinusCircle className={s.remove} />
+                  <FaMinusCircle className={s.remove} onClick={()=>{removeItem(index)}} />
                 </td>
               </tr>
             ))}

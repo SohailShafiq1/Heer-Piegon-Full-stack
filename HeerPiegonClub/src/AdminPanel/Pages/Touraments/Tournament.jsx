@@ -1,3 +1,4 @@
+import { IoIosPeople } from "react-icons/io"; 
 import { BiEdit } from "react-icons/bi";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { IoAddCircleOutline } from "react-icons/io5";
@@ -5,13 +6,19 @@ import React, { useState } from "react";
 import style from "./tournament.module.css";
 import { FaMinusCircle } from "react-icons/fa";
 const s = style;
+import {NavLink} from 'react-router-dom'
 const Tournament = () => {
-  const data = [
+  const [data,setData] = useState([
     { name: "Lahore" },
     { name: "Faisalabad" },
     { name: "Rawalpindi" },
     { name: "Multan" },
-  ];
+  ]);
+  const removeItem = (index)=>
+  {
+  const updatedData = data.filter((_,i) =>i!==index)
+  setData(updatedData )
+  }
   const [tournament, addTournament] = useState(false);
   const adding = () => {
     addTournament(!tournament);
@@ -66,6 +73,7 @@ const Tournament = () => {
               <th>Add</th>
               <th>Edit</th>
               <th>Remove </th>
+              <th>Details </th>
             </tr>
           </thead>
           <tbody>
@@ -108,6 +116,7 @@ const Tournament = () => {
                           {" "}
                           Add
                         </button>
+                        
                       </div>
                     </div>
                   )}
@@ -142,7 +151,10 @@ const Tournament = () => {
                   </div>
                 )}
                 <td>
-                  <FaMinusCircle className={s.remove} />
+                  <FaMinusCircle className={s.remove} onClick={()=>{removeItem(index)}} />
+                </td>
+                <td>
+                 <NavLink to={"/person"}>  <IoIosPeople className={s.addperson}  /></NavLink>
                 </td>
               </tr>
             ))}

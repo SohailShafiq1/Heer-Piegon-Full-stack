@@ -7,12 +7,15 @@ import Tournament from "./pages/Tournament/Tournament";
 import Contact from "./pages/Contact/Contact";
 import Events from "./pages/home/components/Events/Events";
 import Admin from "./AdminPanel/Admin";
-
+import Persons from "./AdminPanel/Pages/Touraments/Persons";
+import AdminNavbar from './AdminPanel/Navbar'
 function App() {
   return (
     <BrowserRouter>
+    <AdminNavbar/>
       <Routes>
         <Route path="/admin" element={<Admin />} />
+        <Route path="/person" element={<Persons />} />
 
         <Route
           path="/*"
