@@ -1,47 +1,106 @@
-import React, { useState } from 'react';
-import style from './nameofcup.module.css';
+import React, { useState, useEffect } from "react";
+import style from "./nameofcup.module.css";
 const s = style;
-import img from '../../../../assets/p1.jpeg';
+import axios from "axios";
+
+import img from "../../../../assets/p1.jpeg";
 
 const NameOfCup = () => {
   const dayData = [
-    { id: 1, name: "Israr Ahmed", img, times: ["18:00", "18:00", "18:00", "18:00", "18:00", "18:00", "18:00"], total: "18:00" },
-    { id: 2, name: "Sohail Shafiq", img, times: ["17:30", "17:45", "18:00", "17:50", "17:55", "18:05", "18:10"], total: "18:05" },
-    { id: 3, name: "Taqi Asad", img, times: ["18:15", "18:20", "18:25", "18:30", "18:35", "18:40", "18:45"], total: "18:30" },
-    { id: 4, name: "Ahmed Ali", img, times: ["17:10", "17:20", "17:30", "17:40", "17:50", "18:00", "18:10"], total: "17:50" },
-    { id: 5, name: "Shamu", img, times: ["18:50", "18:55", "19:00", "19:05", "19:10", "19:15", "19:20"], total: "19:00" },
+    {
+      id: 1,
+      name: "Israr Ahmed",
+      img,
+      times: ["18:00", "18:00", "18:00", "18:00", "18:00", "18:00", "18:00"],
+      total: "18:00",
+    },
+    {
+      id: 2,
+      name: "Sohail Shafiq",
+      img,
+      times: ["17:30", "17:45", "18:00", "17:50", "17:55", "18:05", "18:10"],
+      total: "18:05",
+    },
+    {
+      id: 3,
+      name: "Taqi Asad",
+      img,
+      times: ["18:15", "18:20", "18:25", "18:30", "18:35", "18:40", "18:45"],
+      total: "18:30",
+    },
+    {
+      id: 4,
+      name: "Ahmed Ali",
+      img,
+      times: ["17:10", "17:20", "17:30", "17:40", "17:50", "18:00", "18:10"],
+      total: "17:50",
+    },
+    {
+      id: 5,
+      name: "Shamu",
+      img,
+      times: ["18:50", "18:55", "19:00", "19:05", "19:10", "19:15", "19:20"],
+      total: "19:00",
+    },
   ];
 
-  const totalData = dayData.map(person => ({
+  const totalData = dayData.map((person) => ({
     ...person,
-    total: "07:00" 
+    total: "07:00",
   }));
 
   const [total, setTotal] = useState(false);
-  const [selectedData, setSelectedData] = useState(dayData); 
+  const [selectedData, setSelectedData] = useState(dayData);
+  const [news, setNews] = useState([]);
 
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const fetchNews = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/news");
+      // Only show published news
+      setNews(res.data.filter((item) => item.published));
+    } catch (err) {
+      console.error("Error fetching news", err);
+    }
+  };
   return (
     <div className={s.container}>
-      <div className={s.top}> 
+      <div className={s.top}>
         <div className={s.mainbox}>
           <div className={s.name}>
             <h1>Name of Tournament</h1>
           </div>
           <div className={s.dates}>
             <ul className={s.ul}>
-              {["3/15/2025", "3/16/2025", "3/17/2025", "3/18/2025", "3/19/2025"].map((date, index) => (
-                <li key={index} className={s.li} onClick={() => {
-                  setSelectedData(dayData);
-                  setTotal(true); 
-                }}>
+              {[
+                "3/15/2025",
+                "3/16/2025",
+                "3/17/2025",
+                "3/18/2025",
+                "3/19/2025",
+              ].map((date, index) => (
+                <li
+                  key={index}
+                  className={s.li}
+                  onClick={() => {
+                    setSelectedData(dayData);
+                    setTotal(true);
+                  }}
+                >
                   {date}
                 </li>
               ))}
               <li>
-                <button className={s.totalButton} onClick={() => {
-                  setSelectedData(totalData);
-                  setTotal(false); 
-                }}>
+                <button
+                  className={s.totalButton}
+                  onClick={() => {
+                    setSelectedData(totalData);
+                    setTotal(false);
+                  }}
+                >
                   Total
                 </button>
               </li>
@@ -66,6 +125,11 @@ const NameOfCup = () => {
         </div>
         <div className={s.newsbox}>
           <h2>Latest News will be updated here</h2>
+          <h2>
+            {news.map((item) => (
+              <div key={item._id}>{item.text}</div>
+            ))}
+          </h2>
         </div>
       </div>
       <div className={s.bottom}>
@@ -76,12 +140,15 @@ const NameOfCup = () => {
               <th className={s.pname}>Name</th>
               {total
                 ? [...Array(7)].map((_, i) => (
-                    <th key={i} className={s.th}>{i + 1} Pigeons</th>
+                    <th key={i} className={s.th}>
+                      {i + 1} Pigeons
+                    </th>
                   ))
                 : [...Array(7)].map((_, i) => (
-                    <th key={i} className={s.th}>7 Pigeons</th>
-                  ))
-              }
+                    <th key={i} className={s.th}>
+                      7 Pigeons
+                    </th>
+                  ))}
               <th className={s.th}>Total</th>
             </tr>
           </thead>
@@ -93,7 +160,9 @@ const NameOfCup = () => {
                 </td>
                 <td className={s.pname}>{person.name}</td>
                 {person.times.map((time, index) => (
-                  <td key={index} className={s.th}>{time}</td>
+                  <td key={index} className={s.th}>
+                    {time}
+                  </td>
                 ))}
                 <td className={s.td}>{person.total}</td>
               </tr>
