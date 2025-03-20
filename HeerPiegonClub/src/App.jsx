@@ -8,14 +8,14 @@ import Contact from "./pages/Contact/Contact";
 import Events from "./pages/home/components/Events/Events";
 import Admin from "./AdminPanel/Admin";
 import Persons from "./AdminPanel/Pages/Touraments/Persons";
-import AdminNavbar from './AdminPanel/Navbar'
+import AdminNavbar from "./AdminPanel/Navbar";
 function App() {
   return (
     <BrowserRouter>
-    <AdminNavbar/>
+      <AdminNavbar />
       <Routes>
         <Route path="/admin" element={<Admin />} />
-        <Route path="/person" element={<Persons />} />
+        <Route path="/tournament/:id/participants" element={<Persons />} />
 
         <Route
           path="/*"
@@ -27,6 +27,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/tournament" element={<Tournament />} />
+
                 <Route path="/contact" element={<Contact />} />
               </Routes>
             </>
