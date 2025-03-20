@@ -35,7 +35,7 @@ const Persons = () => {
 
     try {
       await axios.post(
-        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
+        `http://localhost:5001/api/participants/${selectedPerson._id}/flight`,
         {
           date: selectedDate,
           pigeon: selectedPigeon,
@@ -124,7 +124,7 @@ const Persons = () => {
 
     axios
       .get(
-        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
+        `http://localhost:5001/api/participants/${selectedPerson._id}/flight`,
         { params: { date: selectedDate, pigeon: selectedPigeon } }
       )
       .then(({ data }) => {
@@ -231,7 +231,7 @@ const Persons = () => {
                   <td>{index + 1}</td>
                   <td>
                     <img
-                      src={`http://localhost:5000/${person.imagePath}`}
+                      src={`http://localhost:5001/${person.imagePath}`}
                       alt={person.name || "Unknown"}
                       className={s.img}
                     />
