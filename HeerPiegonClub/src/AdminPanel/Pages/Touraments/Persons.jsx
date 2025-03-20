@@ -18,13 +18,63 @@ const Persons = () => {
   const [endTime, setEndTime] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
-  const [tournamentPigeonLimit, setTournamentPigeonLimit] = useState(0);
   const [tournamentDates, setTournamentDates] = useState({
     startDate: "",
     endDate: "",
   });
 
-  // Fetch tournament details (start & end date + pigeon limit)
+  const loftPigeon = async () => {
+    if (!selectedPigeon) {
+      setErrorMessage("Please select a pigeon.");
+      return;
+    }
+    if (!selectedDate) {
+      setErrorMessage("Please select a date.");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
+        {
+          date: selectedDate,
+          pigeon: selectedPigeon,
+          lofted: true, // ✅ Added lofted flag
+        }
+      );
+
+      setParticipants((prev) =>
+        prev.map((p) =>
+          p._id === selectedPerson._id
+            ? {
+                ...p,
+                flightData: [
+                  ...(p.flightData || []).filter(
+                    (f) =>
+                      !(f.date === selectedDate && f.pigeon === selectedPigeon)
+                  ),
+                  {
+                    date: selectedDate,
+                    pigeon: selectedPigeon,
+                    startTime: null,
+                    endTime: null,
+                    flightTime: "loft",
+                    lofted: true, // ✅ Add lofted flag
+                  },
+                ],
+              }
+            : p
+        )
+      );
+
+      setEditParticipant(false);
+    } catch (error) {
+      console.error("Error lofting pigeon:", error);
+      setErrorMessage("Failed to mark pigeon as lofted.");
+    }
+  };
+
+  // Fetch tournament details (start & end date)
   useEffect(() => {
     if (!tournamentId) return;
 
@@ -35,11 +85,10 @@ const Persons = () => {
           startDate: data.startDate?.split("T")[0] || "",
           endDate: data.endDate?.split("T")[0] || "",
         });
-        setTournamentPigeonLimit(data.pigeons || 0);
       })
       .catch((error) => {
-        console.error("Error fetching tournament details:", error);
-        setErrorMessage("Failed to fetch tournament details.");
+        console.error("Error fetching tournament dates:", error);
+        setErrorMessage("Failed to fetch tournament dates.");
       });
   }, [tournamentId]);
 
@@ -75,11 +124,14 @@ const Persons = () => {
 
     axios
       .get(
-        `http://localhost:5001/api/participants/${selectedPerson._id}/flight`,
+        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
         { params: { date: selectedDate, pigeon: selectedPigeon } }
       )
       .then(({ data }) => {
-        if (data && data.startTime && data.endTime) {
+        if (data.lofted) {
+          setStartTime("");
+          setEndTime("");
+        } else if (data.startTime && data.endTime) {
           setStartTime(data.startTime);
           setEndTime(data.endTime);
         } else {
@@ -104,7 +156,7 @@ const Persons = () => {
     }
   };
 
-  // Save pigeon flight data with limit check
+  // Save pigeon flight data
   const savePigeonData = async () => {
     if (!selectedPigeon) {
       setErrorMessage("Please select a pigeon.");
@@ -117,19 +169,6 @@ const Persons = () => {
     if (endTime <= startTime) {
       setErrorMessage(
         "End time cannot be earlier than or equal to start time."
-      );
-      return;
-    }
-
-    // Count pigeons already recorded for the selected date
-    const existingFlights =
-      selectedPerson.flightData?.filter(
-        (flight) => flight.date?.split("T")[0] === selectedDate
-      ) || [];
-
-    if (existingFlights.length >= tournamentPigeonLimit) {
-      setErrorMessage(
-        `You can only add flight data for up to ${tournamentPigeonLimit} pigeons per day.`
       );
       return;
     }
@@ -230,7 +269,6 @@ const Persons = () => {
         <div className={s.popup}>
           <h1>Edit Details for {selectedPerson.name}</h1>
           {errorMessage && <p className={s.error}>{errorMessage}</p>}
-
           <h3>Select Date</h3>
           <input
             type="date"
@@ -239,7 +277,6 @@ const Persons = () => {
             max={tournamentDates.endDate}
             onChange={(e) => setSelectedDate(e.target.value)}
           />
-
           <h3>Select Pigeon</h3>
           <select
             value={selectedPigeon}
@@ -252,22 +289,48 @@ const Persons = () => {
               </option>
             ))}
           </select>
-
-          <h3>Start Time</h3>
-          <input
-            type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-          />
-
-          <h3>End Time</h3>
-          <input
-            type="time"
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-          />
-
+          {selectedPigeon && selectedDate && (
+            <p>
+              {selectedPerson.flightData?.find(
+                (f) => f.date === selectedDate && f.pigeon === selectedPigeon
+              )?.lofted
+                ? "Pigeon is lofted"
+                : ""}
+            </p>
+          )}
+          {!selectedPerson.flightData?.find(
+            (f) => f.date === selectedDate && f.pigeon === selectedPigeon
+          )?.lofted && (
+            <div>
+              <h3>Start Time</h3>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
+            </div>
+          )}
+          {!selectedPerson.flightData?.find(
+            (f) => f.date === selectedDate && f.pigeon === selectedPigeon
+          )?.lofted && (
+            <div>
+              <h3>End Time</h3>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+              />
+            </div>
+          )}
           <div className={s.button}>
+            {!selectedPerson.flightData?.find(
+              (f) => f.date === selectedDate && f.pigeon === selectedPigeon
+            )?.lofted && (
+              <button className={s.loft} onClick={loftPigeon}>
+                Mark as Lofted
+              </button>
+            )}
+
             <button
               className={s.cancel}
               onClick={() => setEditParticipant(false)}
