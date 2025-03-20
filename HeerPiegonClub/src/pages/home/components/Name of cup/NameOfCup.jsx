@@ -175,7 +175,7 @@ const NameOfCup = () => {
                 <td>{participant.name}</td>
                 <td>
                   <img
-                    src={`http://localhost:5000/${participant.imagePath}`}
+                    src={participant.imagePath}
                     alt={participant.name || "Unknown"}
                     className={s.img}
                   />
