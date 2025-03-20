@@ -29,7 +29,7 @@ const Persons = () => {
     if (!tournamentId) return;
 
     axios
-      .get(`http://localhost:5000/api/tournaments/${tournamentId}`)
+      .get(`http://localhost:5001/api/tournaments/${tournamentId}`)
       .then(({ data }) => {
         setTournamentDates({
           startDate: data.startDate?.split("T")[0] || "",
@@ -49,7 +49,7 @@ const Persons = () => {
 
     setLoading(true);
     axios
-      .get(`http://localhost:5000/api/tournaments/${tournamentId}/participants`)
+      .get(`http://localhost:5001/api/tournaments/${tournamentId}/participants`)
       .then(({ data }) => setParticipants(Array.isArray(data) ? data : []))
       .catch((error) => {
         console.error("Error fetching participants:", error);
@@ -75,7 +75,7 @@ const Persons = () => {
 
     axios
       .get(
-        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
+        `http://localhost:5001/api/participants/${selectedPerson._id}/flight`,
         { params: { date: selectedDate, pigeon: selectedPigeon } }
       )
       .then(({ data }) => {
@@ -96,7 +96,7 @@ const Persons = () => {
   // Delete participant
   const deleteParticipant = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/participants/${id}`);
+      await axios.delete(`http://localhost:5001/api/participants/${id}`);
       setParticipants((prev) => prev.filter((p) => p._id !== id));
     } catch (error) {
       console.error("Error deleting participant:", error);
@@ -136,7 +136,7 @@ const Persons = () => {
 
     try {
       const { data } = await axios.post(
-        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
+        `http://localhost:5001/api/participants/${selectedPerson._id}/flight`,
         { date: selectedDate, pigeon: selectedPigeon, startTime, endTime }
       );
 
@@ -192,7 +192,7 @@ const Persons = () => {
                   <td>{index + 1}</td>
                   <td>
                     <img
-                      src={`http://localhost:5000/${person.imagePath}`}
+                      src={`http://localhost:5001/${person.imagePath}`}
                       alt={person.name || "Unknown"}
                       className={s.img}
                     />

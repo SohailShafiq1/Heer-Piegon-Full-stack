@@ -59,7 +59,7 @@ const NameOfCup = () => {
 
   const fetchNews = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/news");
+      const res = await axios.get("http://localhost:5001/api/news");
       // Only show published news
       setNews(res.data.filter((item) => item.published));
     } catch (err) {

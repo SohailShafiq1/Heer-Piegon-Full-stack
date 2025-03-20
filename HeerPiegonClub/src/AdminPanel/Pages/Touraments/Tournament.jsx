@@ -39,7 +39,7 @@ const Tournament = () => {
   }, []);
 
   const fetchTournaments = async () => {
-    const response = await axios.get("http://localhost:5000/api/tournaments");
+    const response = await axios.get("http://localhost:5001/api/tournaments");
     setData(response.data);
   };
 
@@ -54,14 +54,14 @@ const Tournament = () => {
   };
 
   const handleAddTournament = async () => {
-    await axios.post("http://localhost:5000/api/tournaments", newTournament);
+    await axios.post("http://localhost:5001/api/tournaments", newTournament);
     fetchTournaments();
     addTournament(false);
   };
 
   const handleEditTournament = async () => {
     await axios.put(
-      `http://localhost:5000/api/tournaments/${editData._id}`,
+      `http://localhost:5001/api/tournaments/${editData._id}`,
       editData
     );
     fetchTournaments();
@@ -69,7 +69,7 @@ const Tournament = () => {
   };
 
   const removeItem = async (id) => {
-    await axios.delete(`http://localhost:5000/api/tournaments/${id}`);
+    await axios.delete(`http://localhost:5001/api/tournaments/${id}`);
     fetchTournaments();
   };
 
@@ -93,7 +93,7 @@ const Tournament = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/participants",
+        "http://localhost:5001/api/participants",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
