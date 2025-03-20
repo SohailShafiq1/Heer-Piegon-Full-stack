@@ -1,20 +1,44 @@
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 20px auto;
   padding: 20px;
-  background-color: #1e1e1e; /* Dark background */
-  color: #fff;
+  
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
 }
-
+.newsbox
+{
+width: 20%;
+height: 100%;
+background-color: lightcoral;
+border-radius: 2rem;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+background-color: #3a3a3a;
+color: whitesmoke;
+}
 .controls {
   display: flex;
   flex-wrap: wrap;
+  width: 100%;
+  height: 30vh;
   gap: 15px;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+
+}
+.selecting
+{
+  border: 2px solid black;
+  border-radius: 2rem;
+  width: 60%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .controls label {
@@ -25,10 +49,9 @@
 
 .controls select,
 .controls input {
+  width: 50%;
   padding: 8px;
   font-size: 14px;
-  background-color: #2a2a2a;
-  color: #fff;
   border: 1px solid #444;
   border-radius: 5px;
 }
@@ -53,19 +76,33 @@
 }
 
 .table td {
-  background-color: #2a2a2a;
-  color: #ddd;
+  background-color: #D9D9D9;
   font-size: 14px;
+  
 }
 
 .table img {
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(255, 255, 255, 0.2);
 }
+.nameOfPerson
+{
+  width: 5rem;
+}
+.img{
+  width: 2rem;
+  height: 2rem;
+}
 
 .table tr:hover {
   background-color: #3a3a3a;
   transition: 0.3s;
+}
+.img img
+{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 @media (max-width: 768px) {
@@ -83,3 +120,9 @@
     padding: 8px;
   }
 }
+.participant
+{
+  width: 100%;
+  height: auto;
+  background-color: lightcoral;
+}  

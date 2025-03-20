@@ -92,7 +92,8 @@
     box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.5);
     z-index: 100;
 }
-.popup input
+
+.addingPersonInputs
 {
     width: 30%;
     height: 1.5rem;
@@ -104,7 +105,7 @@
     justify-content: space-between;
     width: 40%;
  }
- .dates input
+ .datesInput
  {
     width: 6rem;
     color: #00B1FD;
@@ -167,3 +168,35 @@
     justify-content: center;
     font-size: 1rem;
   }
+
+
+
+  .inputs {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+  }
+  
+  .dates {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .dates h2 {
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .datesInput {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  

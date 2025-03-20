@@ -122,18 +122,23 @@ const Tournament = () => {
       {/* Add Tournament Popup */}
       {tournament && (
         <div className={s.popup}>
-          <h1>New Tournament</h1>
+          
+          <div className={s.dates}>
+            <div>
+            <h1>New Tournament</h1>
           <input
+           className={s.datesInput}
             type="text"
             placeholder="Tournament Name"
             onChange={(e) =>
               setNewTournament({ ...newTournament, name: e.target.value })
             }
           />
-          <div className={s.dates}>
+            </div>
             <div>
               <h2>Start Date</h2>
               <input
+               className={s.datesInput}
                 type="date"
                 onChange={(e) =>
                   setNewTournament({
@@ -146,6 +151,7 @@ const Tournament = () => {
             <div>
               <h2>End Date</h2>
               <input
+               className={s.datesInput}
                 type="date"
                 onChange={(e) =>
                   setNewTournament({
@@ -158,6 +164,7 @@ const Tournament = () => {
             <div>
               <h2>Enter No of Pigeons</h2>
               <input
+               className={s.datesInput}
                 type="number"
                 onChange={(e) =>
                   setNewTournament({
@@ -178,24 +185,33 @@ const Tournament = () => {
           </div>
         </div>
       )}
+      {/* Add persons Popup*/}
       {addPerson && (
         <div className={s.popup}>
           <h1>Add Participant</h1>
+          <h2>Enter name</h2>
           <input
             type="text"
             placeholder="Name"
             onChange={(e) =>
               setNewParticipant({ ...newParticipant, name: e.target.value })
             }
+            className={s.addingPersonInputs}
           />
+          <h2>Enter Address</h2>
           <input
+          className={s.addingPersonInputs}
             type="text"
             placeholder="Address"
             onChange={(e) =>
               setNewParticipant({ ...newParticipant, address: e.target.value })
             }
           />
+          <h2>
+            Enter Piegons 
+          </h2>
           <input
+          className={s.addingPersonInputs}
             type="number"
             placeholder="Number of Pigeons"
             value={newParticipant.pigeons}
@@ -203,7 +219,8 @@ const Tournament = () => {
               setNewParticipant({ ...newParticipant, pigeons: e.target.value });
             }}
           />
-          <input type="file" accept="image/*" onChange={handleFileChange} />
+          <h2>Enter Image</h2>
+          <input type="file" accept="image/*" onChange={handleFileChange} className={s.addingPersonInputs} />
           <div className={s.button}>
             <button className={s.cancelbtn} onClick={() => setAddPerson(false)}>
               Cancel
@@ -265,16 +282,21 @@ const Tournament = () => {
       {/* Edit Tournament Popup */}
       {editTournament && (
         <div className={s.popup}>
-          <h1>Edit Tournament</h1>
+         
+          <div className={s.dates}>
+            <div>
+            <h1>Edit Tournament</h1>
           <input
+          className={s.inputs}
             type="text"
             value={editData.name}
             onChange={(e) => setEditData({ ...editData, name: e.target.value })}
           />
-          <div className={s.dates}>
-            <div>
+            </div>
+            <div >
               <h2>Start Date</h2>
               <input
+              className={s.datesInput}
                 type="date"
                 value={editData.startDate}
                 onChange={(e) =>
@@ -285,6 +307,7 @@ const Tournament = () => {
             <div>
               <h2>End Date</h2>
               <input
+              className={s.datesInput}
                 type="date"
                 value={editData.endDate}
                 onChange={(e) =>
@@ -295,6 +318,7 @@ const Tournament = () => {
             <div>
               <h2>Enter No of Pigeons</h2>
               <input
+               className={s.datesInput}
                 type="number"
                 value={editData.pigeons}
                 onChange={(e) =>

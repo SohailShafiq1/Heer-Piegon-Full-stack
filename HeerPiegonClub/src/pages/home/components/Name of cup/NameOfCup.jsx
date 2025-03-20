@@ -11,7 +11,7 @@ const NameOfCup = () => {
   const [flightData, setFlightData] = useState({});
   const [news, setNews] = useState([]);
 
-  useEffect(() => {
+  useEffect(() => { 
     fetchNews();
   }, []);
 
@@ -43,7 +43,7 @@ const NameOfCup = () => {
 
   const fetchTournaments = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/tournaments");
+      const res = await axios.get("http://localhost:5001/api/tournaments");
       setTournaments(res.data);
     } catch (err) {
       console.error("Error fetching tournaments", err);
@@ -53,7 +53,7 @@ const NameOfCup = () => {
   const fetchParticipants = async (tournamentId) => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/tournaments/${tournamentId}/participants`
+        `http://localhost:5001/api/tournaments/${tournamentId}/participants`
       );
       setParticipants(res.data);
     } catch (err) {
@@ -64,7 +64,7 @@ const NameOfCup = () => {
   const fetchFlightData = async (participantId) => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/participants/${participantId}/flights`
+        `http://localhost:5001/api/participants/${participantId}/flights`
       );
 
       if (res.data.flightData) {
@@ -90,7 +90,9 @@ const NameOfCup = () => {
   return (
     <div className={s.container}>
       <div className={s.controls}>
-        <label>Select Tournament:</label>
+        <div className={s.selecting}> 
+          
+        <h2>Select Tournament:</h2>
         <select
           value={selectedTournament}
           onChange={(e) => setSelectedTournament(e.target.value)}
@@ -106,7 +108,7 @@ const NameOfCup = () => {
 
         {selectedTournament && (
           <>
-            <label>Select Date:</label>
+            <h2>Select Date:</h2>
             <input
               type="date"
               value={selectedDate}
@@ -120,8 +122,8 @@ const NameOfCup = () => {
             />
           </>
         )}
+        </div>
         <div className={s.newsbox}>
-          <h2>Latest News will be updated here</h2>
           <h2>
             {news.map((item) => (
               <div key={item._id}>{item.text}</div>
@@ -130,11 +132,12 @@ const NameOfCup = () => {
         </div>
       </div>
 
+      <div className={s.participant}>
       <table className={s.table}>
         <thead>
           <tr>
-            <th>Name</th>
             <th>Picture</th>
+            <th>Name</th>
             <th>Address</th>
             {Array.from(
               {
@@ -172,14 +175,15 @@ const NameOfCup = () => {
 
             return (
               <tr key={participant._id}>
-                <td>{participant.name}</td>
-                <td>
+                <td className={s.img}>
                   <img
                     src={participant.imagePath}
                     alt={participant.name || "Unknown"}
-                    className={s.img}
+                    
                   />
                 </td>
+                <td className={s.nameOfPersons}>{participant.name}</td>
+                
                 <td>{participant.address}</td>
 
                 {/* Display only the allowed number of pigeons */}
@@ -208,7 +212,9 @@ const NameOfCup = () => {
           })}
         </tbody>
       </table>
-    </div>
+
+</div>
+         </div>
   );
 };
 

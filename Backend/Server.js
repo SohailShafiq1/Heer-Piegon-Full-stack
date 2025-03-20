@@ -12,8 +12,10 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
-app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+app.use(cors())
 
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+  
 app.use(express.json());
 
 const fs = require("fs");
