@@ -3,15 +3,41 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
 const app = express();
 app.use("/uploads", express.static("uploads"));
 const path = require("path");
-
+const storage = multer.diskStorage({
+  destination: "./uploads/",
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 app.use(express.json());
-app.use(cors());
+
+const fs = require("fs");
+
+const uploadDir = path.join(__dirname, "uploads");
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png/;
+    const extname = filetypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+      return cb(null, true);
+    }
+    cb(new Error("Only JPEG, JPG, and PNG files are allowed"));
+  },
+});
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // MongoDB Connection
 mongoose
@@ -193,12 +219,7 @@ const participantSchema = new mongoose.Schema({
 const Participant = mongoose.model("Participant", participantSchema);
 
 // 📌 File Upload Storage (Fixed)
-const storage = multer.diskStorage({
-  destination: "./uploads/",
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
+
 // 📌 Add a participant (with image upload)
 app.post("/api/participants", upload.single("image"), async (req, res) => {
   try {

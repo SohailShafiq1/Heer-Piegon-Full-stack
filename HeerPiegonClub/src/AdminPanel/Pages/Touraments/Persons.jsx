@@ -233,7 +233,7 @@ const Persons = () => {
                   <td>{index + 1}</td>
                   <td>
                     <img
-                      src={`http://localhost:5000/${person.imagePath}`}
+                      src={person.imagePath}
                       alt={person.name || "Unknown"}
                       className={s.img}
                     />
