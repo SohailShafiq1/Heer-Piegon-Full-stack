@@ -6,6 +6,9 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const app = express();
 app.use("/uploads", express.static("uploads"));
+const path = require("path");
+
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 app.use(express.json());
 app.use(cors());
@@ -92,33 +95,6 @@ const tournamentSchema = new mongoose.Schema({
 });
 const Tournament = mongoose.model("Tournament", tournamentSchema);
 
-// 📌 Participant Schema & Model
-const participantSchema = new mongoose.Schema({
-  name: String,
-  address: String,
-  pigeons: [String], // Array of pigeon names or IDs
-  tournamentId: mongoose.Schema.Types.ObjectId,
-  imagePath: String,
-  flightData: [
-    {
-      date: Date,
-      pigeon: String,
-      startTime: String,
-      endTime: String,
-      flightTime: String,
-    },
-  ],
-});
-const Participant = mongoose.model("Participant", participantSchema);
-
-// 📌 File Upload Storage (Fixed)
-const storage = multer.diskStorage({
-  destination: "./uploads/",
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
-
 // 📌 Create a tournament
 app.post("/api/tournaments", async (req, res) => {
   try {
@@ -179,6 +155,50 @@ app.put("/api/tournaments/:id", async (req, res) => {
   }
 });
 
+app.get("/api/tournaments/:id", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid tournament ID" });
+    }
+
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament) {
+      return res.status(404).json({ message: "Tournament not found" });
+    }
+
+    res.json(tournament);
+  } catch (error) {
+    console.error("Error fetching tournament:", error);
+    res.status(500).json({ message: "Error fetching tournament" });
+  }
+});
+const participantSchema = new mongoose.Schema({
+  name: String,
+  address: String,
+  pigeons: [String], // Array of pigeon names or IDs
+  tournamentId: mongoose.Schema.Types.ObjectId,
+  imagePath: String,
+  flightData: [
+    {
+      date: Date,
+      pigeon: String,
+      startTime: String, // Store timestamps instead of strings
+      endTime: String,
+      flightTime: { type: Number, default: null }, // Null for lofted pigeons
+      lofted: { type: Boolean, default: false }, // ✅ New flag for lofted pigeons
+    },
+  ],
+});
+
+const Participant = mongoose.model("Participant", participantSchema);
+
+// 📌 File Upload Storage (Fixed)
+const storage = multer.diskStorage({
+  destination: "./uploads/",
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
 // 📌 Add a participant (with image upload)
 app.post("/api/participants", upload.single("image"), async (req, res) => {
   try {
@@ -235,23 +255,7 @@ app.get("/api/tournaments/:id/participants", async (req, res) => {
     res.status(500).json({ message: "Error fetching participants" });
   }
 });
-app.get("/api/tournaments/:id", async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid tournament ID" });
-    }
 
-    const tournament = await Tournament.findById(req.params.id);
-    if (!tournament) {
-      return res.status(404).json({ message: "Tournament not found" });
-    }
-
-    res.json(tournament);
-  } catch (error) {
-    console.error("Error fetching tournament:", error);
-    res.status(500).json({ message: "Error fetching tournament" });
-  }
-});
 // 📌 Update participant details
 app.put("/api/participants/:id", async (req, res) => {
   try {
@@ -270,7 +274,7 @@ app.put("/api/participants/:id", async (req, res) => {
 app.post("/api/participants/:id/flight", async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, pigeon, startTime, endTime } = req.body;
+    const { date, pigeon, startTime, endTime, lofted } = req.body;
 
     const participant = await Participant.findById(id);
     if (!participant)
@@ -307,6 +311,37 @@ app.post("/api/participants/:id/flight", async (req, res) => {
       });
     }
 
+    // ✅ If the pigeon is lofted, mark it as such
+    if (lofted) {
+      const existingFlightIndex = participant.flightData.findIndex(
+        (f) =>
+          new Date(f.date).toISOString().split("T")[0] ===
+            selectedDate.toISOString().split("T")[0] && f.pigeon === pigeon
+      );
+
+      if (existingFlightIndex !== -1) {
+        participant.flightData[existingFlightIndex].startTime = null;
+        participant.flightData[existingFlightIndex].endTime = null;
+        participant.flightData[existingFlightIndex].flightTime = "loft";
+        participant.flightData[existingFlightIndex].lofted = true;
+      } else {
+        participant.flightData.push({
+          date,
+          pigeon,
+          startTime: null,
+          endTime: null,
+          flightTime: null,
+          lofted: true,
+        });
+      }
+
+      await participant.save();
+      return res.json({
+        message: "Pigeon marked as lofted successfully",
+        flightData: participant.flightData,
+      });
+    }
+
     // ✅ Validate that end time is after start time
     const start = new Date(`${date}T${startTime}`);
     const end = new Date(`${date}T${endTime}`);
@@ -329,6 +364,7 @@ app.post("/api/participants/:id/flight", async (req, res) => {
       participant.flightData[existingFlightIndex].startTime = startTime;
       participant.flightData[existingFlightIndex].endTime = endTime;
       participant.flightData[existingFlightIndex].flightTime = flightTime;
+      participant.flightData[existingFlightIndex].lofted = false; // Reset lofted status
     } else {
       participant.flightData.push({
         date,
@@ -336,6 +372,7 @@ app.post("/api/participants/:id/flight", async (req, res) => {
         startTime,
         endTime,
         flightTime,
+        lofted: false, // Default to not lofted
       });
     }
 
@@ -400,6 +437,101 @@ app.delete("/api/participants/:id", async (req, res) => {
     res.status(500).json({ message: "Error deleting participant" });
   }
 });
+
+app.get("/api/participants/:id/flights", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date } = req.query;
+
+    console.log("Fetching flights for participant ID:", id);
+    console.log("Requested date:", date);
+
+    const participant = await Participant.findById(id);
+
+    if (!participant) {
+      console.log("Participant not found!");
+      return res.status(404).json({ message: "Participant not found" });
+    }
+
+    console.log("Participant found:", participant.name);
+
+    // Ensure flightData exists and is an array
+    if (!participant.flightData || !Array.isArray(participant.flightData)) {
+      console.log("No flight data available for this participant.");
+      return res.json({ message: "No flight data found", flightData: [] });
+    }
+
+    if (!date) {
+      console.log("No specific date provided, returning all flight data.");
+      return res.json({ flightData: participant.flightData });
+    }
+
+    // Convert date to ISO format (YYYY-MM-DD) for comparison
+    const formattedDate = new Date(date).toISOString().split("T")[0];
+    console.log("Formatted date:", formattedDate);
+
+    const flightRecords = participant.flightData.filter(
+      (f) => new Date(f.date).toISOString().split("T")[0] === formattedDate
+    );
+
+    console.log("Flights found:", flightRecords.length);
+
+    res.json({ flightData: flightRecords });
+  } catch (error) {
+    console.error("Error fetching flight data:", error);
+    res.status(500).json({ message: "Error fetching flight data" });
+  }
+});
+
+app.post("/api/participants/:id/flight/loft", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, pigeon } = req.body;
+
+    const participant = await Participant.findById(id);
+    if (!participant) {
+      return res.status(404).json({ message: "Participant not found" });
+    }
+
+    if (!participant.pigeons.includes(pigeon)) {
+      return res.status(400).json({ message: "Invalid pigeon selection" });
+    }
+
+    const formattedDate = new Date(date).toISOString().split("T")[0];
+
+    // Find existing flight entry
+    const existingFlightIndex = participant.flightData.findIndex(
+      (f) =>
+        new Date(f.date).toISOString().split("T")[0] === formattedDate &&
+        f.pigeon === pigeon
+    );
+
+    if (existingFlightIndex !== -1) {
+      // ✅ Update existing flight entry
+      participant.flightData[existingFlightIndex].startTime = null;
+      participant.flightData[existingFlightIndex].endTime = null;
+      participant.flightData[existingFlightIndex].flightTime = null; // Use null instead of "loft"
+      participant.flightData[existingFlightIndex].lofted = true; // ✅ Mark as lofted
+    } else {
+      // ✅ Create a new lofted flight entry
+      participant.flightData.push({
+        date,
+        pigeon,
+        startTime: null,
+        endTime: null,
+        flightTime: null,
+        lofted: true, // ✅ Lofted status
+      });
+    }
+
+    await participant.save();
+    res.json({ message: "Pigeon marked as lofted successfully" });
+  } catch (error) {
+    console.error("Error lofting pigeon:", error);
+    res.status(500).json({ message: "Error lofting pigeon" });
+  }
+});
+
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
