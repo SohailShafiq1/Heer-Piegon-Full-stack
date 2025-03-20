@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
   },
 });
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
-
+app.use(cors());
 app.use(express.json());
 
 const fs = require("fs");
