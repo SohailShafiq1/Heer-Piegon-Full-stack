@@ -1,105 +1,169 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 import style from "./person.module.css";
 import { BiEdit } from "react-icons/bi";
-import { useNavigate } from "react-router-dom";
+import { AiOutlineDelete } from "react-icons/ai";
 
 const s = style;
 
 const Persons = () => {
-  const data = [
-    { name: "Sohail", address: "Rohi", img: "img" },
-    { name: "Israr", address: "Kali Patha", img: "img" },
-  ];
-  
-  const [editTournament, setEditTournament] = useState(false);
+  const { id: tournamentId } = useParams();
+  const [participants, setParticipants] = useState([]);
+  const [editParticipant, setEditParticipant] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedPigeon, setSelectedPigeon] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [pigeonData, setPigeonData] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [tournamentPigeonLimit, setTournamentPigeonLimit] = useState(0);
+  const [tournamentDates, setTournamentDates] = useState({
+    startDate: "",
+    endDate: "",
+  });
 
-  const editing = (person) => {
+  // Fetch tournament details (start & end date + pigeon limit)
+  useEffect(() => {
+    if (!tournamentId) return;
+
+    axios
+      .get(`http://localhost:5000/api/tournaments/${tournamentId}`)
+      .then(({ data }) => {
+        setTournamentDates({
+          startDate: data.startDate?.split("T")[0] || "",
+          endDate: data.endDate?.split("T")[0] || "",
+        });
+        setTournamentPigeonLimit(data.pigeons || 0);
+      })
+      .catch((error) => {
+        console.error("Error fetching tournament details:", error);
+        setErrorMessage("Failed to fetch tournament details.");
+      });
+  }, [tournamentId]);
+
+  // Fetch participants of the tournament
+  useEffect(() => {
+    if (!tournamentId) return;
+
+    setLoading(true);
+    axios
+      .get(`http://localhost:5000/api/tournaments/${tournamentId}/participants`)
+      .then(({ data }) => setParticipants(Array.isArray(data) ? data : []))
+      .catch((error) => {
+        console.error("Error fetching participants:", error);
+        setErrorMessage("Failed to load participants.");
+      })
+      .finally(() => setLoading(false));
+  }, [tournamentId]);
+
+  // Open edit form
+  const handleEdit = (person) => {
     setSelectedPerson(person);
-    setEditTournament(true);
-    setErrorMessage(""); // Clear errors when opening the form
-  };
-
-  const calculateFlightTime = (start, end) => {
-    if (!start || !end) return "00:00:00";
-
-    const startTime = new Date(`1970-01-01T${start}`);
-    const endTime = new Date(`1970-01-01T${end}`);
-
-    let diff = endTime - startTime;
-    if (diff < 0) diff += 24 * 60 * 60 * 1000; // Handle case where end time is on the next day
-
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    return `${hours}h ${minutes}m ${seconds}s`;
-  };
-
-  const savePigeonData = () => {
-    if (!selectedPerson) return;
-
-    // Check if the pigeon has already been entered for this date
-    const isDuplicate = pigeonData.some(
-      (entry) => entry.date === selectedDate && entry.pigeon === selectedPigeon
-    );
-
-    if (isDuplicate) {
-      setErrorMessage("This pigeon has already been entered for this date.");
-      return;
-    }
-
-    // Validate time input
-    if (startTime >= endTime) {
-      setErrorMessage("Start time must be earlier than end time.");
-      return;
-    }
-
-    const flightTime = calculateFlightTime(startTime, endTime);
-    setPigeonData([
-      ...pigeonData,
-      {
-        owner: selectedPerson.name,
-        date: selectedDate,
-        pigeon: selectedPigeon,
-        startTime,
-        endTime,
-        flightTime,
-      },
-    ]);
-
-    setEditTournament(false);
     setSelectedDate("");
     setSelectedPigeon("");
     setStartTime("");
     setEndTime("");
-    setSelectedPerson(null);
-    setErrorMessage(""); // Clear errors after saving
+    setEditParticipant(true);
+    setErrorMessage("");
   };
-  const navigate = useNavigate();
 
+  // Fetch flight data when date or pigeon changes
+  useEffect(() => {
+    if (!selectedPerson || !selectedDate || !selectedPigeon) return;
 
-  const sendingData = () => {
-    const newData = {
-      owner: selectedPerson.name,
-      date: selectedDate,
-      pigeon: selectedPigeon,
-     
-      flightTime,
-    };
-  
-    setPigeonData(prevData => [...prevData, newData]); 
-  
-    navigate("./NameOfCup", { state: newData }); 
+    axios
+      .get(
+        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
+        { params: { date: selectedDate, pigeon: selectedPigeon } }
+      )
+      .then(({ data }) => {
+        if (data && data.startTime && data.endTime) {
+          setStartTime(data.startTime);
+          setEndTime(data.endTime);
+        } else {
+          setStartTime("");
+          setEndTime("");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching flight data:", error);
+        setErrorMessage("Failed to fetch flight data.");
+      });
+  }, [selectedDate, selectedPigeon, selectedPerson]);
+
+  // Delete participant
+  const deleteParticipant = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/participants/${id}`);
+      setParticipants((prev) => prev.filter((p) => p._id !== id));
+    } catch (error) {
+      console.error("Error deleting participant:", error);
+      setErrorMessage("Error deleting participant. Please try again.");
+    }
   };
-  
-  
+
+  // Save pigeon flight data with limit check
+  const savePigeonData = async () => {
+    if (!selectedPigeon) {
+      setErrorMessage("Please select a pigeon.");
+      return;
+    }
+    if (!selectedDate || !startTime || !endTime) {
+      setErrorMessage("All fields are required.");
+      return;
+    }
+    if (endTime <= startTime) {
+      setErrorMessage(
+        "End time cannot be earlier than or equal to start time."
+      );
+      return;
+    }
+
+    // Count pigeons already recorded for the selected date
+    const existingFlights =
+      selectedPerson.flightData?.filter(
+        (flight) => flight.date?.split("T")[0] === selectedDate
+      ) || [];
+
+    if (existingFlights.length >= tournamentPigeonLimit) {
+      setErrorMessage(
+        `You can only add flight data for up to ${tournamentPigeonLimit} pigeons per day.`
+      );
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(
+        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
+        { date: selectedDate, pigeon: selectedPigeon, startTime, endTime }
+      );
+
+      setParticipants((prev) =>
+        prev.map((p) =>
+          p._id === selectedPerson._id
+            ? {
+                ...p,
+                flightData: [
+                  ...(p.flightData || []).filter(
+                    (f) =>
+                      !(f.date === selectedDate && f.pigeon === selectedPigeon)
+                  ),
+                  data,
+                ],
+              }
+            : p
+        )
+      );
+
+      setEditParticipant(false);
+    } catch (error) {
+      console.error("Error saving flight data:", error);
+      setErrorMessage("Failed to save flight data. Please try again.");
+    }
+  };
+
   return (
     <div className={s.container}>
       <div className={s.table}>
@@ -110,98 +174,112 @@ const Persons = () => {
               <th>Pic</th>
               <th>Name</th>
               <th>Address</th>
+              <th>Pigeons</th>
               <th>Edit</th>
+              <th>Delete</th>
             </tr>
           </thead>
           <tbody>
-            {data.map((person, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{person.img}</td>
-                <td>{person.name}</td>
-                <td>{person.address}</td>
-                <td>
-                  <BiEdit className={s.edit} onClick={() => editing(person)} />
+            {loading ? (
+              <tr>
+                <td colSpan="7" className={s.loading}>
+                  Loading participants...
                 </td>
               </tr>
-            ))}
+            ) : participants.length > 0 ? (
+              participants.map((person, index) => (
+                <tr key={person._id}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <img
+                      src={`http://localhost:5000/${person.imagePath}`}
+                      alt={person.name || "Unknown"}
+                      className={s.img}
+                    />
+                  </td>
+                  <td>{person.name || "N/A"}</td>
+                  <td>{person.address || "No address available"}</td>
+                  <td>{person.pigeons?.length || 0}</td>
+                  <td>
+                    <BiEdit
+                      className={s.edit}
+                      onClick={() => handleEdit(person)}
+                    />
+                  </td>
+                  <td>
+                    <AiOutlineDelete
+                      className={s.delete}
+                      onClick={() => deleteParticipant(person._id)}
+                    />
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className={s.noData}>
+                  No participants found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      {editTournament && selectedPerson && (
+      {/* Edit Participant Popup */}
+      {editParticipant && selectedPerson && (
         <div className={s.popup}>
           <h1>Edit Details for {selectedPerson.name}</h1>
-          
-          {errorMessage && <p className={s.error}>{errorMessage}</p>} {/* Show error message */}
+          {errorMessage && <p className={s.error}>{errorMessage}</p>}
 
           <h3>Select Date</h3>
           <input
             type="date"
-            className={s.select}
             value={selectedDate}
+            min={tournamentDates.startDate}
+            max={tournamentDates.endDate}
             onChange={(e) => setSelectedDate(e.target.value)}
           />
 
           <h3>Select Pigeon</h3>
           <select
-            className={s.select}
             value={selectedPigeon}
             onChange={(e) => setSelectedPigeon(e.target.value)}
           >
-            <option value="">Select Pigeon</option>
-            <option value="Pigeon 1">Pigeon 1</option>
-            <option value="Pigeon 2">Pigeon 2</option>
-            <option value="Pigeon 3">Pigeon 3</option>
-            <option value="Pigeon 4">Pigeon 4</option>
-            <option value="Pigeon 5">Pigeon 5</option>
-            <option value="Pigeon 6">Pigeon 6</option>
-            <option value="Pigeon 7">Pigeon 7</option>
-            <option value="Pigeon 8">Pigeon 8</option>
+            <option value="">Select a Pigeon</option>
+            {selectedPerson.pigeons?.map((pigeon, index) => (
+              <option key={index} value={pigeon}>
+                {pigeon}
+              </option>
+            ))}
           </select>
 
-          <div className={s.dates}>
-            <div>
-              <h2>Start Time</h2>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-              />
-            </div>
-            <div>
-              <h2>End Time</h2>
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              />
-            </div>
-          </div>
+          <h3>Start Time</h3>
+          <input
+            type="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+          />
+
+          <h3>End Time</h3>
+          <input
+            type="time"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+          />
 
           <div className={s.button}>
-            <button className={s.cancelbtn} onClick={() => setEditTournament(false)}>
+            <button
+              className={s.cancel}
+              onClick={() => setEditParticipant(false)}
+            >
               Cancel
             </button>
-            <button className={s.addbtn} onClick={savePigeonData}>
+            <button className={s.save} onClick={savePigeonData}>
               Save
             </button>
           </div>
         </div>
       )}
-
-      <div className={s.savedData}>
-        <h2>Saved Pigeon Data</h2>
-        <ul>
-          {pigeonData.map((item, index) => (
-            <li key={index}>
-              <strong>Owner:</strong> {item.owner} | <strong>Date:</strong> {item.date} |{" "}
-              <strong>Pigeon:</strong> {item.pigeon} | <strong>Start Time:</strong> {item.startTime} |{" "}
-              <strong>End Time:</strong> {item.endTime} | <strong>Flight Time:</strong> {item.flightTime}
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 };
