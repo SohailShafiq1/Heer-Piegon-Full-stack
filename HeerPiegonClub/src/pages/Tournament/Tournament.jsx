@@ -9,7 +9,7 @@ const Tournament = () => {
     fetchTournaments();
   }, []);
   const fetchTournaments = async () => {
-    const response = await axios.get("http://localhost:5000/api/tournaments");
+    const response = await axios.get("http://localhost:5001/api/tournaments");
     setData(response.data);
   };
   return (

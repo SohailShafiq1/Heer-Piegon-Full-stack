@@ -35,7 +35,7 @@ const Persons = () => {
 
     try {
       await axios.post(
-        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
+        `http://localhost:5001/api/participants/${selectedPerson._id}/flight`,
         {
           date: selectedDate,
           pigeon: selectedPigeon,
@@ -79,7 +79,7 @@ const Persons = () => {
     if (!tournamentId) return;
 
     axios
-      .get(`http://localhost:5000/api/tournaments/${tournamentId}`)
+      .get(`http://localhost:5001/api/tournaments/${tournamentId}`)
       .then(({ data }) => {
         setTournamentDates({
           startDate: data.startDate?.split("T")[0] || "",
@@ -98,7 +98,7 @@ const Persons = () => {
 
     setLoading(true);
     axios
-      .get(`http://localhost:5000/api/tournaments/${tournamentId}/participants`)
+      .get(`http://localhost:5001/api/tournaments/${tournamentId}/participants`)
       .then(({ data }) => setParticipants(Array.isArray(data) ? data : []))
       .catch((error) => {
         console.error("Error fetching participants:", error);
@@ -124,10 +124,8 @@ const Persons = () => {
 
     axios
       .get(
-        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
-        {
-          params: { date: selectedDate, pigeon: selectedPigeon },
-        }
+        `http://localhost:5001/api/participants/${selectedPerson._id}/flight`,
+        { params: { date: selectedDate, pigeon: selectedPigeon } }
       )
       .then(({ data }) => {
         if (data.lofted) {
@@ -150,7 +148,7 @@ const Persons = () => {
   // Delete participant
   const deleteParticipant = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/participants/${id}`);
+      await axios.delete(`http://localhost:5001/api/participants/${id}`);
       setParticipants((prev) => prev.filter((p) => p._id !== id));
     } catch (error) {
       console.error("Error deleting participant:", error);
@@ -177,7 +175,7 @@ const Persons = () => {
 
     try {
       const { data } = await axios.post(
-        `http://localhost:5000/api/participants/${selectedPerson._id}/flight`,
+        `http://localhost:5001/api/participants/${selectedPerson._id}/flight`,
         { date: selectedDate, pigeon: selectedPigeon, startTime, endTime }
       );
 
@@ -233,7 +231,7 @@ const Persons = () => {
                   <td>{index + 1}</td>
                   <td>
                     <img
-                      src={person.imagePath}
+                      src={`http://localhost:5001/${person.imagePath}`}
                       alt={person.name || "Unknown"}
                       className={s.img}
                     />
@@ -272,19 +270,20 @@ const Persons = () => {
           <h1>Edit Details for {selectedPerson.name}</h1>
           {errorMessage && <p className={s.error}>{errorMessage}</p>}
           <h3>Select Date</h3>
-          <input
+          <input 
             type="date"
             value={selectedDate}
             min={tournamentDates.startDate}
             max={tournamentDates.endDate}
             onChange={(e) => setSelectedDate(e.target.value)}
+           
           />
           <h3>Select Pigeon</h3>
-          <select
+          <select className={s.inputs}
             value={selectedPigeon}
             onChange={(e) => setSelectedPigeon(e.target.value)}
           >
-            <option value="">Select a Pigeon</option>
+            <option value="" >Select a Pigeon</option>
             {selectedPerson.pigeons?.map((pigeon, index) => (
               <option key={index} value={pigeon}>
                 {pigeon}
@@ -303,9 +302,10 @@ const Persons = () => {
           {!selectedPerson.flightData?.find(
             (f) => f.date === selectedDate && f.pigeon === selectedPigeon
           )?.lofted && (
-            <div>
+            <div className={s.dates}>
               <h3>Start Time</h3>
               <input
+                className={s.datesInput}
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
@@ -315,9 +315,10 @@ const Persons = () => {
           {!selectedPerson.flightData?.find(
             (f) => f.date === selectedDate && f.pigeon === selectedPigeon
           )?.lofted && (
-            <div>
+            <div className={s.dates}>
               <h3>End Time</h3>
               <input
+              className={s.datesInput}
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
