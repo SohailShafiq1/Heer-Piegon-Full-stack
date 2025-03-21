@@ -66,30 +66,31 @@
   height: 1.5rem;
   border: 1px solid black;
 }
-.dates {
-  display: flex;
-  justify-content: space-between;
-  width: 40%;
-}
-.dates input {
-  width: 6rem;
-  color: #00b1fd;
-}
+
 .button {
   display: flex;
   justify-content: space-between;
-  width: 25%;
+  width: 40%;
   height: 2rem;
   margin-top: 1rem;
 }
-.cancelbtn {
+.cancel {
   width: 5rem;
   border-radius: 2px;
   border: none;
   background-color: #ced0d4;
   cursor: pointer;
 }
-.addbtn {
+.loft
+{
+  width: 5rem;
+  border-radius: 2px;
+  border: none;
+  background-color: rgb(232, 79, 79);
+  color: white;
+  cursor: pointer;
+}
+.save {
   width: 5rem;
   border-radius: 2px;
   border: none;
@@ -97,39 +98,41 @@
   color: white;
   cursor: pointer;
 }
-.personData {
-  width: 60%;
-  display: flex;
-  justify-content: start;
-  flex-direction: column;
-}
-.personData input {
-  width: 100%;
-}
-.fileInput {
-  width: 80%;
-  padding: 10px;
-  border: 2px solid #444;
-  border-radius: 5px;
-  background: #2c2c2c;
-  color: #ffffff;
-  cursor: pointer;
-  outline: none;
-}
 
-.uploadButton {
-  width: 30%;
-  height: 2rem;
-  background-color: black;
-  color: white;
-  cursor: pointer;
-  border-radius: 1rem;
-  margin-top: 1rem;
-  justify-content: center;
-  font-size: 1rem;
-}
 .select {
   width: 8rem;
   height: 1.5rem;
   border: 2px solid;
+  background-color: lightcoral;
+  color: white;
+}
+.inputs {
+  width: 30%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.dates {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-top: 10px;
+  width: 20rem;
+}
+
+.dates h2 {
+  font-size: 16px;
+  color: #555;
+}
+
+.datesInput {
+  width: 12rem;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
 }

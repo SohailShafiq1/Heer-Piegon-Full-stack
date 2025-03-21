@@ -270,19 +270,20 @@ const Persons = () => {
           <h1>Edit Details for {selectedPerson.name}</h1>
           {errorMessage && <p className={s.error}>{errorMessage}</p>}
           <h3>Select Date</h3>
-          <input
+          <input 
             type="date"
             value={selectedDate}
             min={tournamentDates.startDate}
             max={tournamentDates.endDate}
             onChange={(e) => setSelectedDate(e.target.value)}
+           
           />
           <h3>Select Pigeon</h3>
-          <select
+          <select className={s.inputs}
             value={selectedPigeon}
             onChange={(e) => setSelectedPigeon(e.target.value)}
           >
-            <option value="">Select a Pigeon</option>
+            <option value="" >Select a Pigeon</option>
             {selectedPerson.pigeons?.map((pigeon, index) => (
               <option key={index} value={pigeon}>
                 {pigeon}
@@ -301,9 +302,10 @@ const Persons = () => {
           {!selectedPerson.flightData?.find(
             (f) => f.date === selectedDate && f.pigeon === selectedPigeon
           )?.lofted && (
-            <div>
+            <div className={s.dates}>
               <h3>Start Time</h3>
               <input
+                className={s.datesInput}
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
@@ -313,9 +315,10 @@ const Persons = () => {
           {!selectedPerson.flightData?.find(
             (f) => f.date === selectedDate && f.pigeon === selectedPigeon
           )?.lofted && (
-            <div>
+            <div className={s.dates}>
               <h3>End Time</h3>
               <input
+              className={s.datesInput}
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
