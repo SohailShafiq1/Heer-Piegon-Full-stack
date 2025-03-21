@@ -73,6 +73,14 @@ const News = () => {
           <button className={s.saveNews} onClick={saveNews}>
             Save
           </button>
+          <button
+            className={s.saveNews}
+            onClick={() => {
+              setAdd(!add);
+            }}
+          >
+            Cancel
+          </button>
         </div>
       )}
 

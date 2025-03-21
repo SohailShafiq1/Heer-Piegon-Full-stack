@@ -218,8 +218,6 @@ const participantSchema = new mongoose.Schema({
 
 const Participant = mongoose.model("Participant", participantSchema);
 
-// 📌 File Upload Storage (Fixed)
-
 // 📌 Add a participant (with image upload)
 app.post("/api/participants", upload.single("image"), async (req, res) => {
   try {
@@ -550,6 +548,49 @@ app.post("/api/participants/:id/flight/loft", async (req, res) => {
   } catch (error) {
     console.error("Error lofting pigeon:", error);
     res.status(500).json({ message: "Error lofting pigeon" });
+  }
+});
+
+// Define Schema & Model
+const postSchema = new mongoose.Schema({
+  name: String,
+  imageUrl: String,
+});
+const Post = mongoose.model("Post", postSchema);
+
+// Upload a Post
+app.post("/api/posts", upload.single("image"), async (req, res) => {
+  try {
+    const { name } = req.body;
+    const imageUrl = req.file
+      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+      : "";
+
+    const newPost = new Post({ name, imageUrl });
+    await newPost.save();
+    res.status(201).json(newPost);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get All Posts
+app.get("/api/posts", async (req, res) => {
+  try {
+    const posts = await Post.find();
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a Post
+app.delete("/api/posts/:id", async (req, res) => {
+  try {
+    await Post.findByIdAndDelete(req.params.id);
+    res.json({ message: "Post deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
